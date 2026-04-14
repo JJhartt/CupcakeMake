@@ -2,3 +2,8 @@ Toppings (Sprinkles / Stickers)
 Wrappers
 Toolbar (Change Color / Size / Shape / Tool)
 Tools (Shape / Sprinkles)
+
+Cupcake Rating:
+    Neatness
+    Color Cordnation
+    Taste?

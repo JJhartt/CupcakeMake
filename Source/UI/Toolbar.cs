@@ -9,14 +9,16 @@ public class Toolbar
     private Button _sizeUp = null!;
     private Button _sizeDown = null!;
     private Button _clearButton = null!;
+    private Button _saveButton = null!;
     private Brush _brush;
     private Texture2D _background = null!;
     private GraphicsDevice _graphicsDevice = null!;
     private Rectangle _backgroundRect;
     public bool ClearRequested { get; private set; } = false;
+    public bool SaveRequested { get; private set; } = false;
 
 
-    public Toolbar(GraphicsDevice graphicsDevice, Brush brush, Rectangle _toolbarArea)
+    public Toolbar(GraphicsDevice graphicsDevice,SpriteFont font, Brush brush, Rectangle _toolbarArea)
     {
         _graphicsDevice = graphicsDevice;
         _brush = brush;
@@ -32,19 +34,23 @@ public class Toolbar
         
 
         // shape buttons — start at x=10
-        _shapeButtons.Add(new Button(_graphicsDevice, GetButtonRect(0, 10, toolbarY, buttonW, buttonH, padding), "Circle"));
-        _shapeButtons.Add(new Button(_graphicsDevice, GetButtonRect(1, 10, toolbarY, buttonW, buttonH, padding), "Square"));
+        _shapeButtons.Add(new Button(_graphicsDevice, font, GetButtonRect(0, 10, toolbarY, buttonW, buttonH, padding), "Circle"));
+        _shapeButtons.Add(new Button(_graphicsDevice, font, GetButtonRect(1, 10, toolbarY, buttonW, buttonH, padding), "Square"));
 
         // color buttons — start at x=200
-        _colorButtons.Add(new Button(_graphicsDevice, GetButtonRect(0, 200, toolbarY, colorW, buttonH, padding), "R") { Color = Color.Red });
-        _colorButtons.Add(new Button(_graphicsDevice, GetButtonRect(1, 200, toolbarY, colorW, buttonH, padding), "G") { Color = Color.Green });
-        _colorButtons.Add(new Button(_graphicsDevice, GetButtonRect(2, 200, toolbarY, colorW, buttonH, padding), "B") { Color = Color.Blue });
+        _colorButtons.Add(new Button(_graphicsDevice, font, GetButtonRect(0, 200, toolbarY, colorW, buttonH, padding), "R") { Color = Color.Red });
+        _colorButtons.Add(new Button(_graphicsDevice, font, GetButtonRect(1, 200, toolbarY, colorW, buttonH, padding), "G") { Color = Color.Green });
+        _colorButtons.Add(new Button(_graphicsDevice, font, GetButtonRect(2, 200, toolbarY, colorW, buttonH, padding), "B") { Color = Color.Blue });
+        _colorButtons.Add(new Button(_graphicsDevice, font, GetButtonRect(3, 200, toolbarY, colorW, buttonH, padding), "Y") { Color = Color.Yellow });
+        _colorButtons.Add(new Button(_graphicsDevice, font, GetButtonRect(4, 200, toolbarY, colorW, buttonH, padding), "W") { Color = Color.White });
+        _colorButtons.Add(new Button(_graphicsDevice, font, GetButtonRect(5, 200, toolbarY, colorW, buttonH, padding), "BK") { Color = Color.Black });
 
         // size buttons — start at x=400
-        _sizeUp   = new Button(_graphicsDevice, GetButtonRect(0, 400, toolbarY, colorW, buttonH, padding), "+");
-        _sizeDown = new Button(_graphicsDevice, GetButtonRect(1, 400, toolbarY, colorW, buttonH, padding), "-");
+        _sizeUp   = new Button(_graphicsDevice, font, GetButtonRect(6, 200, toolbarY, colorW, buttonH, padding), "+");
+        _sizeDown = new Button(_graphicsDevice, font, GetButtonRect(7, 200, toolbarY, colorW, buttonH, padding), "-");
 
-        _clearButton = new Button(_graphicsDevice, GetButtonRect(0, 600, toolbarY, colorW, buttonH, padding), "Clear");
+        _clearButton = new Button(_graphicsDevice, font, GetButtonRect(8, 200, toolbarY, colorW, buttonH, padding), "Clear");
+        _saveButton =  new Button(_graphicsDevice, font, GetButtonRect(9, 200, toolbarY, colorW, buttonH, padding), "Save");
     }
     private Rectangle GetButtonRect(int index, int startX, int y, int width, int height, int padding)
     {
@@ -88,6 +94,11 @@ public class Toolbar
         {
             ClearRequested = true;
         }
+        SaveRequested = false;
+        if(_saveButton.IsClicked(mouseX,mouseY, justClicked))
+        {
+            SaveRequested = true;
+        }
     }
 
     public void Draw(SpriteBatch spriteBatch)
@@ -102,5 +113,6 @@ public class Toolbar
         _sizeUp.Draw(spriteBatch);
         _sizeDown.Draw(spriteBatch);
         _clearButton.Draw(spriteBatch);
+        _saveButton.Draw(spriteBatch);
     }
 }

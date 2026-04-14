@@ -15,3 +15,33 @@
 /importer:TextureImporter
 /processor:TextureProcessor
 /build:cupcake.jpeg
+
+#begin Cupcake1.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/build:Cupcake1.png
+
+#begin Cupcake2.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/build:Cupcake2.png
+
+#begin Think.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/build:Think.png
+
+#begin Yes.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/build:Yes.png
+
+#begin No.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/build:No.png
+
+#begin UI.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/build:UI.spritefont
