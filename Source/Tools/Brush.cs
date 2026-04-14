@@ -53,7 +53,7 @@ public class Brush {
         Texture2D square = new Texture2D(_graphicsDevice,Size*2,Size*2);
         Color[] data = new Color[(Size*2) * (Size *2 )];
 
-        for(int i = 0; i<Size;i++){
+        for(int i = 0; i<((Size*2)*(Size*2));i++){
             data[i] = Color.White;
         } 
         square.SetData(data);
