@@ -30,6 +30,7 @@ public class PaintScreen : IScreen
         _spriteBatch = spriteBatch;
         _screenManager = screenManager;
 
+
         int toolbarHeight = 50;
         _toolbarArea = new Rectangle(0, 600 - toolbarHeight, 800, toolbarHeight);
         _canvasArea  = new Rectangle(0, 0, 800, 600 - toolbarHeight);
@@ -39,18 +40,20 @@ public class PaintScreen : IScreen
             800, 550, false,
             SurfaceFormat.Color, DepthFormat.None, 0,
             RenderTargetUsage.PreserveContents
-        );
+        );  
 
         // clear canvas to transparent
         _graphicsDevice.SetRenderTarget(_canvas);
         _graphicsDevice.Clear(Color.Transparent);
         _graphicsDevice.SetRenderTarget(null);
-
-        _brush = new Brush(_graphicsDevice);
-        _toolbar = new Toolbar(_graphicsDevice,_font, _brush, _toolbarArea);
-
         using var stream = File.OpenRead(image);
         _background = Texture2D.FromStream(_graphicsDevice, stream);
+        _brush = new Brush(_graphicsDevice);
+        _brush.InitGrid(800, _canvasArea.Height);
+        _brush.LoadCollisionFromTexture(_background);
+        _toolbar = new Toolbar(_graphicsDevice,_font, _brush, _toolbarArea);
+
+        
     }
 
     public void Update(GameTime gameTime)
@@ -63,6 +66,11 @@ public class PaintScreen : IScreen
 
         _isPainting = _mouse.LeftButton == ButtonState.Pressed
                       && _canvasArea.Contains(_mouse.X, _mouse.Y);
+
+        _brush.Update((float)gameTime.ElapsedGameTime.TotalSeconds, _canvasArea.Height);
+
+        if(_isPainting)
+            _brush.SpawnParticles(new Vector2(_mouse.X,_mouse.Y));
 
         _toolbar.Update(_mouse.X, _mouse.Y, justClicked);
 
@@ -79,28 +87,34 @@ public class PaintScreen : IScreen
 
     public void Draw(SpriteBatch spriteBatch)
     {
-        if (_isPainting)
-        {
-            _graphicsDevice.SetRenderTarget(_canvas);
-            _spriteBatch.Begin();
-            _brush.Paint(_spriteBatch, new Vector2(_mouse.X, _mouse.Y));
-            _spriteBatch.End();
-        }
-
-        _graphicsDevice.SetRenderTarget(null);
-        _graphicsDevice.Clear(Color.Black);
-
+        // Bake only settled particles onto the persistent canvas
+    if (_isPainting || _brush.HasUnsettledParticles)
+    {
+        _graphicsDevice.SetRenderTarget(_canvas);
         _spriteBatch.Begin();
-        _spriteBatch.Draw(_background, _canvasArea, Color.White);
+        _brush.DrawSettledParticles(_spriteBatch);  // only settled
         _spriteBatch.End();
+    }
 
-        _spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
-        _spriteBatch.Draw(_canvas, Vector2.Zero, Color.White);
-        _spriteBatch.End();
+    _graphicsDevice.SetRenderTarget(null);
+    _graphicsDevice.Clear(Color.Black);
 
-        _spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
-        _toolbar.Draw(_spriteBatch);
-        _spriteBatch.End();
+    _spriteBatch.Begin();
+    _spriteBatch.Draw(_background, _canvasArea, Color.White);
+    _spriteBatch.End();
+
+    _spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
+    _spriteBatch.Draw(_canvas, Vector2.Zero, Color.White);
+    _spriteBatch.End();
+
+    // Draw falling particles on top, directly to screen (not baked)
+    _spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
+    _brush.DrawFallingParticles(_spriteBatch);  // unsettled, on screen
+    _spriteBatch.End();
+
+    _spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
+    _toolbar.Draw(_spriteBatch);
+    _spriteBatch.End();
     }
 
     private void ClearCanvas()
@@ -108,6 +122,8 @@ public class PaintScreen : IScreen
         _graphicsDevice.SetRenderTarget(_canvas);
         _graphicsDevice.Clear(Color.Transparent);
         _graphicsDevice.SetRenderTarget(null);
+        _brush.InitGrid(800, _canvasArea.Height);
+        _brush.LoadCollisionFromTexture(_background);
     }
 
     private string SaveCanvas()
